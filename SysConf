@@ -1,0 +1,40 @@
+#!/bin/bash
+exec scalas $0 $@
+!#
+/***
+  libraryDependencies ++= Seq(
+//    "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.1",
+//    "joda-time" % "joda-time" % "2.0",
+//    "org.joda" % "joda-convert" % "1.1"
+  )
+*/
+
+import scala.sys.process._
+
+installPackage("emacs")
+installPackage("git")
+installPackage("clamav-daemon")
+installPackage("clamav-freshclam")
+installPackage("maven")
+installPackage("gradle")
+installPackage("kdiff3")
+installEclipse()
+
+def installEclipse() {
+    installPackage("eclipse")
+    // TODO: Make this test for 32 or 64 bit linux and act accordingly.  Currently it is just assuming 64 bit.
+
+    // Fix issue with SWT links when running Eclipse with Oracle Java 7 on 64 bit linux.
+    // Reference <http://stackoverflow.com/a/10251453/67159>.
+    "mkdir -p ~/.swt/lib/linux/x86_64".!
+    "ln -s /usr/lib/jni/libswt-* ~/.swt/lib/linux/x86_64".!
+}
+
+def installPackage(name: String): Boolean = {
+  println(s"==> Attempting to install $name")
+  packagesAreUpdated && s"apt-get install -y $name".! == 0
+}
+
+lazy val packagesAreUpdated = {
+  s"apt-get update".! == 0
+}
